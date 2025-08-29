@@ -283,3 +283,4 @@ Check the codebase for existing test configurations. Common patterns:
 - **E2E Tests:** For critical user flows
 
 Always run tests before deployment and ensure all security validations pass.
+- Always use port 3000 when using npm run dev
