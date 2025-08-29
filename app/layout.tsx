@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
+import { TRPCProvider } from '../lib/trpc-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -49,9 +50,11 @@ export default function RootLayout({
           <meta name="format-detection" content="telephone=no" />
         </head>
         <body className="antialiased bg-background text-foreground min-h-screen">
-          <div className="min-h-screen flex flex-col">
-            {children}
-          </div>
+          <TRPCProvider>
+            <div className="min-h-screen flex flex-col">
+              {children}
+            </div>
+          </TRPCProvider>
         </body>
       </html>
     </ClerkProvider>

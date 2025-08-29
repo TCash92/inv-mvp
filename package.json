@@ -10,9 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "^15.1.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "@clerk/nextjs": "^6.31.6",
     "@hookform/resolvers": "^5.2.1",
     "@tanstack/react-query": "^5.85.5",
@@ -24,7 +21,11 @@
     "better-sqlite3": "^12.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "next": "^15.1.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.62.0",
+    "superjson": "^2.2.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.76",
