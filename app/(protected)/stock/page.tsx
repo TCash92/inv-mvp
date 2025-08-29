@@ -1,0 +1,302 @@
+'use client';
+
+import { useState } from 'react';
+import { api } from '../../../lib/trpc';
+import { StatusBadge } from '../../../components/ui';
+import { formatQuantity, formatWeight, calculateCapacityPercentage, getCapacityColor } from '../../../lib/utils';
+
+export default function StockPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMagazine, setSelectedMagazine] = useState<string>('all');
+  const [selectedCompatibilityGroup, setSelectedCompatibilityGroup] = useState<string>('all');
+
+  // Fetch data
+  const { data: currentStock, isLoading: stockLoading } = api.stock.getCurrentStock.useQuery();
+  const { data: magazines, isLoading: magazinesLoading } = api.magazines.getAll.useQuery();
+
+  // Filter stock based on search and filters
+  const filteredStock = currentStock?.filter((item) => {
+    const matchesSearch = 
+      item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.magazine_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.magazine_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesMagazine = selectedMagazine === 'all' || item.magazine_id.toString() === selectedMagazine;
+    const matchesCompatibility = selectedCompatibilityGroup === 'all' || item.compatibility_group === selectedCompatibilityGroup;
+
+    return matchesSearch && matchesMagazine && matchesCompatibility;
+  }) || [];
+
+  // Calculate summary statistics
+  const totalItems = filteredStock.reduce((sum, item) => sum + item.current_quantity, 0);
+  const totalNetWeight = filteredStock.reduce((sum, item) => sum + (item.net_explosive_weight || 0), 0);
+  const uniqueProducts = new Set(filteredStock.map(item => item.product_id)).size;
+  const uniqueMagazines = new Set(filteredStock.map(item => item.magazine_id)).size;
+
+  // Get unique compatibility groups for filter
+  const compatibilityGroups = Array.from(new Set(currentStock?.map(item => item.compatibility_group) || []));
+
+  if (stockLoading || magazinesLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="space-y-3">
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Current Stock Levels</h1>
+            <p className="text-gray-600 mt-1">Real-time inventory across all magazines</p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex items-center space-x-2">
+            <span className="text-sm text-gray-500">Last updated:</span>
+            <span className="text-sm font-medium text-gray-900">
+              {new Date().toLocaleTimeString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Total Items</p>
+              <p className="text-2xl font-bold text-gray-900">{totalItems.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Net Weight</p>
+              <p className="text-2xl font-bold text-gray-900">{formatWeight(totalNetWeight)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Products</p>
+              <p className="text-2xl font-bold text-gray-900">{uniqueProducts}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Magazines</p>
+              <p className="text-2xl font-bold text-gray-900">{uniqueMagazines}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Search */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Product name, UN number, magazine..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Magazine Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Magazine
+            </label>
+            <select
+              value={selectedMagazine}
+              onChange={(e) => setSelectedMagazine(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="all">All Magazines</option>
+              {magazines?.map((magazine) => (
+                <option key={magazine.id} value={magazine.id.toString()}>
+                  {magazine.code} - {magazine.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Compatibility Group Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Compatibility Group
+            </label>
+            <select
+              value={selectedCompatibilityGroup}
+              onChange={(e) => setSelectedCompatibilityGroup(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="all">All Groups</option>
+              {compatibilityGroups.map((group) => (
+                <option key={group} value={group}>
+                  Group {group}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Stock Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Stock Details ({filteredStock.length} items)
+          </h2>
+        </div>
+        
+        {filteredStock.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">
+            No stock items found matching your criteria.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Magazine
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    UN Number
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Compatibility
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Quantity
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Net Weight (kg)
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredStock.map((item, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {item.magazine_code}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {item.magazine_name}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {item.product_name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <StatusBadge variant="info" size="sm">
+                        {item.un_number}
+                      </StatusBadge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <StatusBadge variant="compatibility" type={item.compatibility_group} size="sm">
+                        Group {item.compatibility_group}
+                      </StatusBadge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        {formatQuantity(item.current_quantity, item.unit)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        {(item.net_explosive_weight || 0).toFixed(2)}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Export Actions */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Export Options</h3>
+            <p className="text-gray-600 text-sm">Download current stock data for reporting</p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              Export to CSV
+            </button>
+            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              Print Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { api } from '../../lib/trpc';
+import { api } from '../../../lib/trpc';
 import Link from 'next/link';
 
 export function DashboardContent() {
