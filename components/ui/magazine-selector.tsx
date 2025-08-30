@@ -44,8 +44,9 @@ export function MagazineSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter magazines based on search term and filter criteria
-  const filteredMagazines = magazines
+  // Filter magazines based on search term and filter criteria - handle undefined/null magazines
+  const safeMagazines = Array.isArray(magazines) ? magazines : [];
+  const filteredMagazines = safeMagazines
     .filter(magazine => {
       const matchesSearch = 
         magazine.code.toLowerCase().includes(searchTerm.toLowerCase()) ||

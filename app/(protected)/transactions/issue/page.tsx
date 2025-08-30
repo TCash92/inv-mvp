@@ -117,7 +117,7 @@ export default function IssuePage() {
           <div>
             <ProductSelector
               label="Product to Issue"
-              products={products || []}
+              products={Array.isArray(products) ? products : []}
               value={selectedProduct}
               onChange={(product) => {
                 setSelectedProduct(product);
@@ -132,7 +132,7 @@ export default function IssuePage() {
           <div>
             <MagazineSelector
               label="Source Magazine"
-              magazines={magazines || []}
+              magazines={Array.isArray(magazines) ? magazines : []}
               value={selectedMagazine}
               onChange={(magazine) => {
                 setSelectedMagazine(magazine);

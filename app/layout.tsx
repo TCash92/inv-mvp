@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { TRPCProvider } from '../lib/trpc-provider';
 import { isTestingMode } from '../lib/test-auth';
@@ -7,14 +7,20 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Explosives Inventory System',
   description: 'Mobile-first explosives inventory management for field operations',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
   manifest: '/manifest.json',
-  themeColor: '#1f2937',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Explosives Inventory',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#1f2937',
 };
 
 export default function RootLayout({

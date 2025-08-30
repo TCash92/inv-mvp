@@ -64,10 +64,9 @@ export default function TransferPage() {
     setValue('referenceNumber', generateReferenceNumber('Transfer'));
   };
 
-  // Filter destination magazines to exclude source magazine
-  const availableDestMagazines = magazines?.filter(
-    (mag) => mag.id !== selectedSourceMagazine?.id
-  ) || [];
+  // Filter destination magazines to exclude source magazine using dashboard pattern
+  const availableDestMagazines = Array.isArray(magazines) ? 
+    magazines.filter((mag) => mag.id !== selectedSourceMagazine?.id) : [];
 
   const onSubmit = async (data: TransferFormData) => {
     try {
@@ -125,7 +124,7 @@ export default function TransferPage() {
           <div>
             <ProductSelector
               label="Product to Transfer"
-              products={products || []}
+              products={Array.isArray(products) ? products : []}
               value={selectedProduct}
               onChange={(product) => {
                 setSelectedProduct(product);
@@ -140,7 +139,7 @@ export default function TransferPage() {
           <div>
             <MagazineSelector
               label="Source Magazine (From)"
-              magazines={magazines || []}
+              magazines={Array.isArray(magazines) ? magazines : []}
               value={selectedSourceMagazine}
               onChange={(magazine) => {
                 setSelectedSourceMagazine(magazine);

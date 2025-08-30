@@ -10,33 +10,11 @@ export default function StockPage() {
   const [selectedMagazine, setSelectedMagazine] = useState<string>('all');
   const [selectedCompatibilityGroup, setSelectedCompatibilityGroup] = useState<string>('all');
 
-  // Fetch data using same pattern as dashboard
+  // Fetch data
   const { data: currentStock, isLoading: stockLoading } = api.stock.getCurrentStock.useQuery();
   const { data: magazines, isLoading: magazinesLoading } = api.magazines.getAll.useQuery();
 
-  // Calculate stats using dashboard pattern
-  const totalItems = Array.isArray(currentStock) ? currentStock.reduce((sum, item) => sum + item.current_quantity, 0) : 0;
-  const totalNetWeight = Array.isArray(currentStock) ? currentStock.reduce((sum, item) => sum + (item.net_explosive_weight || 0), 0) : 0;
-  const uniqueProducts = Array.isArray(currentStock) ? new Set(currentStock.map(item => item.product_id)).size : 0;
-  const uniqueMagazines = Array.isArray(currentStock) ? new Set(currentStock.map(item => item.magazine_id)).size : 0;
-
-  // Filter stock using dashboard pattern
-  const filteredStock = Array.isArray(currentStock) ? currentStock.filter((item) => {
-    const matchesSearch = 
-      item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.magazine_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.magazine_name.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesMagazine = selectedMagazine === 'all' || item.magazine_id.toString() === selectedMagazine;
-    const matchesCompatibility = selectedCompatibilityGroup === 'all' || item.compatibility_group === selectedCompatibilityGroup;
-
-    return matchesSearch && matchesMagazine && matchesCompatibility;
-  }) : [];
-
-  // Get unique compatibility groups using dashboard pattern
-  const compatibilityGroups = Array.isArray(currentStock) ? Array.from(new Set(currentStock.map(item => item.compatibility_group))) : [];
-
+  // Early return for loading state
   if (stockLoading || magazinesLoading) {
     return (
       <div className="space-y-6">
@@ -53,6 +31,29 @@ export default function StockPage() {
       </div>
     );
   }
+
+  // Filter stock based on search and filters - handle undefined/null currentStock
+  const filteredStock = Array.isArray(currentStock) ? currentStock.filter((item) => {
+    const matchesSearch = 
+      item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.magazine_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.magazine_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesMagazine = selectedMagazine === 'all' || item.magazine_id.toString() === selectedMagazine;
+    const matchesCompatibility = selectedCompatibilityGroup === 'all' || item.compatibility_group === selectedCompatibilityGroup;
+
+    return matchesSearch && matchesMagazine && matchesCompatibility;
+  }) : [];
+
+  // Calculate summary statistics
+  const totalItems = filteredStock.reduce((sum, item) => sum + item.current_quantity, 0);
+  const totalNetWeight = filteredStock.reduce((sum, item) => sum + (item.net_explosive_weight || 0), 0);
+  const uniqueProducts = new Set(filteredStock.map(item => item.product_id)).size;
+  const uniqueMagazines = new Set(filteredStock.map(item => item.magazine_id)).size;
+
+  // Get unique compatibility groups for filter
+  const compatibilityGroups = Array.from(new Set(currentStock?.map(item => item.compatibility_group) || []));
 
   return (
     <div className="space-y-6">
@@ -168,7 +169,7 @@ export default function StockPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Magazines</option>
-              {Array.isArray(magazines) && magazines.map((magazine) => (
+              {magazines?.map((magazine) => (
                 <option key={magazine.id} value={magazine.id.toString()}>
                   {magazine.code} - {magazine.name}
                 </option>

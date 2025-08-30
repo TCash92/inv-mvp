@@ -47,8 +47,9 @@ export function ProductSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter products based on search term
-  const filteredProducts = (Array.isArray(products) ? products : []).filter(product =>
+  // Filter products based on search term - handle undefined/null products using dashboard pattern
+  const safeProducts = Array.isArray(products) ? products : [];
+  const filteredProducts = safeProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (product.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
