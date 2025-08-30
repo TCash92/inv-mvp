@@ -60,3 +60,7 @@ logs
 
 # temporary files
 envlocal.txt
+
+# Playwright test files
+playwright/.clerk
+.playwright-mcp/

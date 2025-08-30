@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { TRPCProvider } from '../lib/trpc-provider';
+import { isTestingMode } from '../lib/test-auth';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -21,6 +22,28 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // In testing mode, skip ClerkProvider entirely
+  if (isTestingMode()) {
+    return (
+      <html lang="en">
+        <head>
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="format-detection" content="telephone=no" />
+        </head>
+        <body className="antialiased bg-background text-foreground min-h-screen">
+          <TRPCProvider>
+            <div className="min-h-screen flex flex-col">
+              {children}
+            </div>
+          </TRPCProvider>
+        </body>
+      </html>
+    );
+  }
+
+  // Normal production layout with ClerkProvider
   return (
     <ClerkProvider
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}

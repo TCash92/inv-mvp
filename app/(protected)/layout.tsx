@@ -2,17 +2,30 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { UserButton } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { MobileNav } from '../../components/layout/mobile-nav';
+import { isTestingMode, getMockAuth } from '../../lib/test-auth';
 
 export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
-  const user = await currentUser();
+  let userId: string | null = null;
+  let user: any = null;
 
-  if (!userId) {
-    redirect('/sign-in');
+  if (isTestingMode()) {
+    // Use mock authentication in testing mode
+    const mockAuth = getMockAuth();
+    userId = mockAuth?.userId || null;
+    user = mockAuth?.user || null;
+  } else {
+    // Use real Clerk authentication in production
+    const authResult = await auth();
+    userId = authResult.userId;
+    user = await currentUser();
+    
+    if (!userId) {
+      redirect('/sign-in');
+    }
   }
 
   return (
@@ -30,7 +43,7 @@ export default async function ProtectedLayout({
                   Explosives Inventory
                 </h1>
                 <p className="text-sm text-gray-600 hidden sm:block">
-                  Welcome, {user?.firstName || user?.emailAddresses[0]?.emailAddress}
+                  Welcome, {user?.firstName || user?.email || 'Test User'}
                 </p>
               </div>
             </div>
@@ -42,13 +55,19 @@ export default async function ProtectedLayout({
               </button>
               
               {/* User Menu */}
-              <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10",
-                  }
-                }}
-              />
+              {isTestingMode() ? (
+                <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
+                  {user?.firstName?.charAt(0) || 'T'}
+                </div>
+              ) : (
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10",
+                    }
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>

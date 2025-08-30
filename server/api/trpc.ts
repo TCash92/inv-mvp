@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import db from '../../lib/db';
+import { getMockAuth, isTestingMode } from '../../lib/test-auth';
 
 interface CreateContextOptions {
   session: Session | null;
@@ -21,6 +22,15 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
+  
+  // Use mock authentication in testing mode
+  if (isTestingMode()) {
+    const mockAuth = getMockAuth();
+    return createInnerTRPCContext({
+      session: mockAuth?.session || null,
+      user: mockAuth?.user || null,
+    });
+  }
   
   // Get the session from the server using Clerk
   const session = await auth();

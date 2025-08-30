@@ -1,4 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
@@ -8,12 +10,23 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks/clerk',
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  // Protect all routes except public ones
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+export default function middleware(req: NextRequest) {
+  // Bypass all authentication in testing mode
+  console.log('TESTING_MODE:', process.env.TESTING_MODE);
+  if (process.env.TESTING_MODE === 'true') {
+    console.log('Testing mode: bypassing auth for', req.nextUrl.pathname);
+    return NextResponse.next();
   }
-});
+
+  console.log('Production mode: using Clerk middleware');
+  // Use normal Clerk middleware in production
+  return clerkMiddleware(async (auth) => {
+    // Protect all routes except public ones
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+  })(req);
+}
 
 export const config = {
   matcher: [

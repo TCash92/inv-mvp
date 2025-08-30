@@ -48,7 +48,7 @@ export function ProductSelector({
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filter products based on search term
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = (Array.isArray(products) ? products : []).filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (product.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)

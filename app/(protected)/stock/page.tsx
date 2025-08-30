@@ -15,7 +15,7 @@ export default function StockPage() {
   const { data: magazines, isLoading: magazinesLoading } = api.magazines.getAll.useQuery();
 
   // Filter stock based on search and filters
-  const filteredStock = currentStock?.filter((item) => {
+  const filteredStock = (Array.isArray(currentStock) ? currentStock : []).filter((item) => {
     const matchesSearch = 
       item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.un_number.toLowerCase().includes(searchTerm.toLowerCase()) ||

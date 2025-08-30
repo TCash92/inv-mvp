@@ -1,6 +1,13 @@
 import { SignIn } from '@clerk/nextjs';
+import { isTestingMode } from '../../../lib/test-auth';
+import { redirect } from 'next/navigation';
 
 export default function SignInPage() {
+  // In testing mode, automatically redirect to dashboard
+  if (isTestingMode()) {
+    redirect('/dashboard');
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
