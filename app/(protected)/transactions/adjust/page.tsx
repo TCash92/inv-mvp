@@ -241,12 +241,13 @@ export default function AdjustPage() {
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
+            <div className="flex flex-col sm:flex-row sm:justify-end space-y-4 sm:space-y-0 sm:space-x-4">
               <ActionButton
                 type="button"
                 variant="outline"
                 size="lg"
                 onClick={() => window.history.back()}
+                className="sm:w-auto"
               >
                 Cancel
               </ActionButton>
@@ -255,6 +256,7 @@ export default function AdjustPage() {
                 variant={activeTab === 'increase' ? 'success' : 'destructive'}
                 size="lg"
                 disabled={!selectedMagazine || !selectedProduct || !adjustmentQuantity || !adjustmentReason || !authorizationNumber}
+                className="flex-1 sm:flex-none sm:w-auto"
               >
                 {activeTab === 'increase' ? 'Increase Inventory' : 'Decrease Inventory'}
               </ActionButton>

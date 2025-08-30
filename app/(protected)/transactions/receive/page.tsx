@@ -164,7 +164,7 @@ export default function ReceivePage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Reference Number
               </label>
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                 <input
                   {...register('referenceNumber')}
                   type="text"
@@ -176,7 +176,7 @@ export default function ReceivePage() {
                   variant="outline"
                   size="lg"
                   onClick={generateNewRefNumber}
-                  className="px-6"
+                  className="px-6 sm:w-auto w-full"
                 >
                   Generate
                 </ActionButton>
