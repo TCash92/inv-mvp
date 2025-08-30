@@ -72,11 +72,12 @@ export default function TransactionsPage() {
   // Fetch recent transactions for the activity feed
   const { data: recentTransactions, isLoading } = api.transactions.getAll.useQuery();
 
-  // Calculate today's transaction stats
+  // Calculate today's transaction stats - handle undefined/null recentTransactions using dashboard pattern
   const today = new Date().toDateString();
-  const todayTransactions = recentTransactions?.filter(tx => 
+  const safeRecentTransactions = Array.isArray(recentTransactions) ? recentTransactions : [];
+  const todayTransactions = safeRecentTransactions.filter(tx => 
     new Date(tx.transaction_date).toDateString() === today
-  ) || [];
+  );
 
   const transactionCounts = todayTransactions.reduce((acc, tx) => {
     acc[tx.type] = (acc[tx.type] || 0) + 1;
@@ -233,9 +234,9 @@ export default function TransactionsPage() {
                 </div>
               ))}
             </div>
-          ) : recentTransactions && recentTransactions.length > 0 ? (
+          ) : safeRecentTransactions.length > 0 ? (
             <div className="space-y-4">
-              {recentTransactions.slice(0, 8).map((transaction) => (
+              {safeRecentTransactions.slice(0, 8).map((transaction) => (
                 <div key={transaction.id} className="flex items-center space-x-4">
                   <StatusBadge variant="transaction" type={transaction.type} size="sm">
                     {transaction.type}
