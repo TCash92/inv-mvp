@@ -10,11 +10,11 @@ export function DashboardContent() {
   const { data: unresolvedReconciliations, isLoading: reconciliationLoading } = api.reconciliation.getUnresolved.useQuery();
 
   // Calculate stats
-  const totalStockItems = currentStock?.reduce((sum, item) => sum + item.current_quantity, 0) || 0;
-  const todayTransactions = recentTransactions?.filter(
+  const totalStockItems = Array.isArray(currentStock) ? currentStock.reduce((sum, item) => sum + item.current_quantity, 0) : 0;
+  const todayTransactions = Array.isArray(recentTransactions) ? recentTransactions.filter(
     tx => new Date(tx.transaction_date).toDateString() === new Date().toDateString()
-  ).length || 0;
-  const pendingReconciliations = unresolvedReconciliations?.length || 0;
+  ).length : 0;
+  const pendingReconciliations = Array.isArray(unresolvedReconciliations) ? unresolvedReconciliations.length : 0;
 
   return (
     <div className="space-y-6">
@@ -81,7 +81,7 @@ export function DashboardContent() {
       </div>
 
       {/* Current Stock Overview */}
-      {currentStock && currentStock.length > 0 && (
+      {Array.isArray(currentStock) && currentStock.length > 0 && (
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-mobile-lg font-semibold text-gray-900">
@@ -101,7 +101,7 @@ export function DashboardContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentStock.slice(0, 10).map((item, index) => (
+                  {Array.isArray(currentStock) ? currentStock.slice(0, 10).map((item, index) => (
                     <tr key={index} className="border-b last:border-b-0">
                       <td className="py-3">
                         <div>
@@ -118,13 +118,13 @@ export function DashboardContent() {
                       <td className="py-3 text-right font-medium">{item.current_quantity} {item.unit}</td>
                       <td className="py-3 text-right">{(item.net_explosive_weight || 0).toFixed(2)}</td>
                     </tr>
-                  ))}
+                  )) : null}
                 </tbody>
               </table>
-              {currentStock.length > 10 && (
+              {Array.isArray(currentStock) && currentStock.length > 10 && (
                 <div className="text-center mt-4">
                   <Link href="/stock" className="text-blue-600 hover:text-blue-800 font-medium">
-                    View all stock items ({currentStock.length} total)
+                    View all stock items ({Array.isArray(currentStock) ? currentStock.length : 0} total)
                   </Link>
                 </div>
               )}
@@ -143,7 +143,7 @@ export function DashboardContent() {
         <div className="p-6">
           {transactionsLoading ? (
             <p className="text-gray-500 text-center">Loading recent transactions...</p>
-          ) : recentTransactions && recentTransactions.length > 0 ? (
+          ) : Array.isArray(recentTransactions) && recentTransactions.length > 0 ? (
             <div className="space-y-4">
               {recentTransactions.slice(0, 5).map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between">
