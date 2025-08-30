@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { cn } from '../../lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ResponsePlansMobile } from './response-plans-mobile';
 
 interface NavItem {
   name: string;
@@ -194,11 +195,9 @@ export function MobileNav() {
               ))}
             </nav>
 
-            {/* Emergency Actions */}
+            {/* Response Plans */}
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-semibold text-base min-h-[56px] transition-colors">
-                Emergency Stop
-              </button>
+              <ResponsePlansMobile />
             </div>
           </div>
         </div>

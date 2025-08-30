@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { UserButton } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { MobileNav } from '../../components/layout/mobile-nav';
+import { ResponsePlansHeader } from '../../components/layout/response-plans-header';
 import { isTestingMode, getMockAuth } from '../../lib/test-auth';
 
 export default async function ProtectedLayout({
@@ -49,10 +50,8 @@ export default async function ProtectedLayout({
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Emergency Stop Button */}
-              <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-semibold text-sm min-h-[44px] hidden sm:flex items-center">
-                Emergency Stop
-              </button>
+              {/* Response Plans Dropdown - Temporarily disabled for testing */}
+              {/* <ResponsePlansHeader /> */}
               
               {/* User Menu */}
               {isTestingMode() ? (

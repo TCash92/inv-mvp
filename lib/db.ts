@@ -186,6 +186,29 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
   `);
 
+  // Create response_plans table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS response_plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      plan_type TEXT NOT NULL CHECK(plan_type IN ('fire', 'security', 'erap')),
+      file_name TEXT NOT NULL,
+      file_path TEXT NOT NULL,
+      file_size INTEGER NOT NULL,
+      mime_type TEXT DEFAULT 'application/pdf',
+      uploaded_at INTEGER NOT NULL,
+      uploaded_by_user_id TEXT NOT NULL,
+      version INTEGER DEFAULT 1,
+      is_active BOOLEAN DEFAULT true,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_response_plans_type ON response_plans(plan_type);
+    CREATE INDEX IF NOT EXISTS idx_response_plans_active ON response_plans(is_active);
+    CREATE INDEX IF NOT EXISTS idx_response_plans_uploaded_by ON response_plans(uploaded_by_user_id);
+  `);
+
   console.log('Database schema initialized successfully');
 }
 

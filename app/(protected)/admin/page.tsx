@@ -23,6 +23,7 @@ export default function AdminPage() {
             { id: 'users', label: 'User Management', icon: '👥' },
             { id: 'magazines', label: 'Magazine Setup', icon: '🏭' },
             { id: 'products', label: 'Product Catalog', icon: '📦' },
+            { id: 'plans', label: 'Response Plans', icon: '📋' },
             { id: 'system', label: 'System Settings', icon: '⚙️' },
             { id: 'backup', label: 'Backup & Recovery', icon: '💾' }
           ].map((tab) => (
@@ -175,6 +176,125 @@ export default function AdminPage() {
                     </label>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'plans' && (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Response Plans Management</h2>
+              <p className="text-gray-600 mb-6">
+                Upload and manage emergency response plans for site safety. These plans will be accessible through the Response Plans dropdown in the header.
+              </p>
+              
+              <div className="space-y-6">
+                {/* Fire Safety Plan */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">🔥</span>
+                    <h3 className="font-semibold text-gray-900">Fire Safety Plan</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload PDF Document
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">PDF files only, max 10MB</p>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded border-2 border-dashed border-gray-300">
+                      <div className="text-center text-gray-500">
+                        <p className="text-sm font-medium">Current Status:</p>
+                        <p className="text-xs text-gray-600 mt-1">No fire safety plan uploaded</p>
+                        <button className="mt-2 text-orange-600 hover:text-orange-700 text-sm font-medium">
+                          Upload Plan
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security Plan */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">🔒</span>
+                    <h3 className="font-semibold text-gray-900">Security Plan</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload PDF Document
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">PDF files only, max 10MB</p>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded border-2 border-dashed border-gray-300">
+                      <div className="text-center text-gray-500">
+                        <p className="text-sm font-medium">Current Status:</p>
+                        <p className="text-xs text-gray-600 mt-1">No security plan uploaded</p>
+                        <button className="mt-2 text-orange-600 hover:text-orange-700 text-sm font-medium">
+                          Upload Plan
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ERAP Plan */}
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">🚨</span>
+                    <h3 className="font-semibold text-gray-900">ERAP (Emergency Response Assistance Plan)</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload PDF Document
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">PDF files only, max 10MB</p>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded border-2 border-dashed border-gray-300">
+                      <div className="text-center text-gray-500">
+                        <p className="text-sm font-medium">Current Status:</p>
+                        <p className="text-xs text-gray-600 mt-1">No ERAP plan uploaded</p>
+                        <button className="mt-2 text-orange-600 hover:text-orange-700 text-sm font-medium">
+                          Upload Plan
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Instructions */}
+              <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">📝 Upload Guidelines</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• PDF format only, maximum file size 10MB</li>
+                  <li>• Plans should be current and approved by site management</li>
+                  <li>• Uploaded plans will be immediately accessible to all authorized users</li>
+                  <li>• Previous versions will be archived automatically</li>
+                  <li>• Contact IT support for bulk uploads or technical issues</li>
+                </ul>
               </div>
             </div>
           )}
